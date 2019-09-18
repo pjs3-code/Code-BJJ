@@ -1,9 +1,8 @@
-select top(500) q.title, 
+select q.title, 
 q.creationdate as Time_Of_Question, 
-a.creationdate as Time_Of_Answer, 
-a.creationdate - q.creationdate as TimeToAnswer
+a.creationdate as Time_Of_Answer
 from posts q join posts a on q.AcceptedAnswerId = a.id
+where q.posttypeid = 1 and a.creationdate - q.creationdate < 0
+order by a.creationdate - q.creationdate
 
-where q.posttypeid = 1
-
-order by TimeToAnswer
+--With this querry, we're seeing answers dated before questions (comment 9/19)
