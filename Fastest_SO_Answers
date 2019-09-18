@@ -1,0 +1,9 @@
+select top(500) q.title, 
+q.creationdate as Time_Of_Question, 
+a.creationdate as Time_Of_Answer, 
+a.creationdate - q.creationdate as TimeToAnswer
+from posts q join posts a on q.AcceptedAnswerId = a.id
+
+where q.posttypeid = 1
+
+order by TimeToAnswer
