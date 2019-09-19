@@ -1,0 +1,5 @@
+--For individual job. Correctly tallies clicks for Apple
+
+select sum(ApplyOutClickCount)
+from jobapplyoutclick
+where date between '2019-09-12' and '2019-09-18' and jobid = '293158'
