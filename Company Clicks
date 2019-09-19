@@ -1,0 +1,8 @@
+--Company Clicks
+--select sub.clickz, j.title
+--from job j join (
+--select sum(applyoutclickcount) as clickz, j.jobid, sum(views) as views
+--from job j 
+--inner join jobapplyoutclick jaoc on j.jobid = jaoc.jobid
+--where companyname like '%apple inc.%'and date > '2019-09-12'
+--group by j.jobid) sub on sub.jobid = j.jobid
