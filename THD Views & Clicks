@@ -1,4 +1,6 @@
-select Viewtab.Views, Clicktab.Clicks
+select Viewtab.Views As Views, 
+Clicktab.Clicks As Clicks, 
+Round(Clicktab.Clicks*100.0/Viewtab.Views,2) As CTR   
 
 from 
 
@@ -7,8 +9,6 @@ from jobvisits
 where date between '2019-01-01' and '2019-09-19'
 group by jobid) 
 Viewtab
-
-
 
 inner join 
 
@@ -43,4 +43,3 @@ sub2
 on sub1.jobid = sub2.jobid) Clicktab
 
 on Viewtab.jobid = clicktab.JobID
-
