@@ -1,0 +1,48 @@
+select sum(Viewtab.Views) As Views, 
+sum(Clicktab.Clicks) As Clicks,
+Round(sum(Clicktab.Clicks)*100.0 / sum(Viewtab.Views),1) As CTR
+
+from 
+
+(select sum(visitcount) As Views, jobid
+from jobvisits
+where date between '2019-01-01' and '2019-09-19'
+group by jobid) 
+Viewtab
+
+
+
+inner join 
+
+--Start Click Query:
+(select 
+case when ClicksA is not Null then ClicksA else ClicksB end As Clicks,
+case when sub1.jobid is not null then sub1.jobid else sub2.jobid end As JobID 
+from 
+
+  (
+  select sum(ApplyButtonClickCount) As ClicksA, jobid
+  from JobApplyButtonClicks
+  where date between '2019-01-01' and '2019-09-19'
+  and companypageid in (14199, 20011)
+  group by jobid 
+  ) 
+
+sub1
+full outer join
+
+  (
+  select sum(ApplyOutClickCount) As ClicksB, jobid
+  from JobApplyOutClick 
+  where date between '2019-01-01' and '2019-09-19'
+  and companypageid in (14199, 20011)
+  group by jobid
+
+  )
+
+sub2
+
+on sub1.jobid = sub2.jobid) Clicktab
+
+on Viewtab.jobid = clicktab.JobID
+
