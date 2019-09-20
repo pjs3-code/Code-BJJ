@@ -1,0 +1,46 @@
+declare @start DATE = '##StartDate##'
+declare @end DATE = '##EndDate##'
+
+
+select c.Id
+       , c.Name 
+       , c.CustomerTypeId
+       , jobSlots.Qty as JobSlots
+       , jobsInfo.RunningJobs
+       , jobsInfo.Views
+       , jobsInfo.AvgViewsPerDayPerJob
+       
+from Companies c 
+join
+    (select u.CompanyId
+           , count(*) as RunningJobs
+           , isnull(sum(Views.Qty), 0) as Views
+           , isnull(AVG(Views.Qty/RunningDays.Qty), 0) as AvgViewsPerDayPerJob
+    from Users u
+    join Job j on u.id = j.UserId
+    join
+        (select p.JobId, sum(DATEDIFF(MINUTE,
+                            case when p.StartDate < @start then @start else p.StartDate end,
+                            case when p.EndDate > @end then @end else p.EndDate end)) / 1440.0 as Qty
+        from JobRunningPeriods p 
+        where p.EndDate >= @start and p.StartDate <= @end
+        group by p.JobId) RunningDays  on j.JobId = RunningDays.JobId
+
+        left Join 
+
+            (select v.JobId, sum(v.VisitCount) as Qty
+            from JobVisits v
+            where v.Date >= @start and v.Date < @end
+            group by v.JobId) Views  
+        on RunningDays.JobId = Views.JobId
+
+    where RunningDays.Qty > 0
+    group by u.CompanyId) jobsInfo on c.Id = jobsInfo.CompanyId
+
+cross apply (
+    select count(*) as Qty
+    from JobSlot s
+    join Users u2 on s.UserId = u2.Id
+    where u2.CompanyId = c.Id and  @end >= s.ActivationDate and  @start <= s.DateVoidAfter
+) jobSlots
+where jobSlots.Qty >= 100
