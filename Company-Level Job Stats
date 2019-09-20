@@ -1,0 +1,68 @@
+
+-----Query for company-wide stats returning total clicks, views and CTR----- 
+--Spacing for SEDE Editor
+
+select sum(sub.clicks) As CompanyClicks, 
+sum(sub2.views) As CompanyViews, 
+round(sum(sub.clicks)*100.0/sum(sub2.views)*1.00,2) As CTR 
+
+from --$$From sub and sub2, written below$$--
+
+----------------------Start of sub---------------------- 
+  (
+  select sub1a.clicks, j.jobid --Select Statment using 1a
+  from job j 
+  join --**to join sub1a**--
+     
+     -------------------Start of 1a-------------------
+    (
+     select sum(applyoutclickcount) as clicks, j.jobid
+      from job j 
+      inner join 
+      jobapplyoutclick jaoc 
+      on j.jobid = jaoc.jobid
+      where companyname like '%apple%' 
+      and 
+      date between '2019-01-01' and '2019-09-18'
+      group by j.jobid) 
+      sub1a 
+     -------------------End of 1a-------------------
+  
+  on sub1a.jobid = j.jobid--**Remainder of join statement**--
+   ) 
+
+sub
+----------------------End of sub----------------------
+
+join --$$$$$Joining sub and sub2$$$$$-- 
+  
+----------------------Start of sub2---------------------- 
+  (
+  select sum(sub2a.visitcount) as views, j.jobid
+  from 
+  job j 
+  left join --**will be joining job j with sub2a**--
+   
+   -------------------Start of 2a------------------
+    (
+    select jobid, visitcount
+    from jobvisits
+    where date between '2019-01-01' and '2019-09-18') 
+    sub2a 
+    -------------------End of 2a------------------
+  
+  on j.jobid = sub2a.jobid --**Remainder of join**-- 
+    where companyname like '%apple%'
+    group by j.jobid
+   
+   ) 
+sub2
+----------------------End of sub2----------------------    
+
+on sub.jobid = sub2.jobid --$$$$$Remainder of join between sub and sub2$$$$$-- 
+
+
+
+
+--getdate() as Today, getdate() - 7 as BeginningDate
+--For weekly data 
