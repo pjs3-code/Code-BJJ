@@ -1,0 +1,120 @@
+
+-------------------------------------------------------Master Select----------------------------------------------------
+select 
+SourcingTab.CompanyPageID,
+AdTab.CPA_Impressions, AdTab.CPA_Clicks, AdTab.CPA_CTR, 
+JobTab.Job_Views, JobTab.Job_Clicks, JobTab.Job_CTR,
+SourcingTab.Messages_Sent, SourcingTab.Replies, SourcingTab.Interested_Replies
+--------------------------------------------------- End of Master Select------------------------------------------------
+
+
+From 
+-----------------------------------------------------Start of Sourcing---------------------------------------------------
+
+  (select count(*) As Messages_Sent, 
+  count(ResonseInterestIndicatorDescription) As Replies, 
+  count(case when ResonseInterestIndicatorDescription = 'Interested' then 1 else null end) As Interested_Replies, 
+  u.canonicalcompanyid,
+  cp.id As CompanyPageID
+
+  from introductions intro join users u 
+  on intro.IntroMessageSenderUserId = u.id 
+  join companypages cp on cp.canonicalcompanyid=u.canonicalcompanyid
+
+  where u.canonicalcompanyid = 7073 
+  and IntroMessageCreationDate > '2019-06-01'
+  group by u.canonicalcompanyid, cp.id)
+  SourcingTab
+  
+------------------------------------------------------End Of Sourcing----------------------------------------------------
+
+join
+
+
+---------------------------------------------------Start of Branding Table--------------------------------------------------
+
+  (select sum(FBD.Impressions) As CPA_Impressions, 
+  sum(FBD.Clicks) As CPA_Clicks, 
+  Round(sum(FBD.Clicks)*100.0 / sum(FBD.Impressions), 2) As CPA_CTR,
+  companypageid
+
+  from CompanypageAdPackages CPAP
+  join
+  [Calculon.Metrics].dbo.FlightsByDay FBD on
+  fbd.flightid = CPAP.flightid
+  where companypageid = 14199
+  and date between '2019-01-01' and '2019-09-19'
+  group by companypageid)
+  AdTab
+---------------------------------------------------End of Branding Table-------------------------------------------------
+
+
+on
+SourcingTab.CompanyPageID = AdTab.companypageid
+join
+
+----------------------------------------------------Start Of Job Table------------------------------------------------------
+    --Job query returns:
+    --Job Views
+    --Job Clicks
+    --Job CTR
+    --Company Page ID
+    
+    (select sum(Viewtab.Views) As Job_Views, 
+    sum(Clicktab.Clicks) As Job_Clicks,
+    Round(sum(Clicktab.Clicks)*100.0 / sum(Viewtab.Views),2) As Job_CTR,
+    Clicktab.CompanyPageID
+
+    from 
+
+    (select sum(visitcount) As Views, jobid
+    from jobvisits
+    where date between '2019-01-01' and '2019-09-19'
+    group by jobid) 
+    Viewtab
+
+
+
+    inner join 
+
+    --Start Click Query:
+    (select 
+    case when ClicksA is not Null then ClicksA else ClicksB end As Clicks,
+    case when sub1.jobid is not null then sub1.jobid else sub2.jobid end As JobID,
+    case when sub1.companypageid is not null then sub1.companypageid else sub2.companypageid end as CompanyPageID
+
+    from 
+
+      (
+  
+      select sum(ApplyButtonClickCount) As ClicksA, jobid, companypageid
+      from JobApplyButtonClicks
+      where date between '2019-01-01' and '2019-09-19'
+      and companypageid in (14199, 20011)
+      group by jobid, companypageid
+  
+      ) 
+
+    sub1
+    full outer join
+
+      (
+  
+      select sum(ApplyOutClickCount) As ClicksB, jobid, companypageid
+      from JobApplyOutClick 
+      where date between '2019-01-01' and '2019-09-19'
+      and companypageid in (14199, 20011)
+      group by jobid, companypageid
+  
+      )
+
+    sub2
+
+    on sub1.jobid = sub2.jobid) Clicktab
+
+    on Viewtab.jobid = clicktab.JobID
+    Group By CompanyPageID) 
+    JobTab
+----------------------------------------------------End Of Job Table------------------------------------------------------
+
+on AdTab.CompanyPageId = JobTab.CompanyPageId
