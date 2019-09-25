@@ -1,6 +1,6 @@
 -------------------------------------------------------Master Select----------------------------------------------------
 select 
-SourcingTab.CompanyPageID,
+JobTab.CompanyPageID,
 BrandingTab.CPA_Impressions, BrandingTab.CPA_Clicks, BrandingTab.CPA_CTR, BrandingTab.PageViewCount,
 JobTab.Job_Views, JobTab.Job_Clicks, JobTab.Job_CTR, JobTab.Utilization As Job_Utilization_Pct,
 SourcingTab.Messages_Sent, SourcingTab.Replies, SourcingTab.Interested_Replies
@@ -16,18 +16,18 @@ From
   u.canonicalcompanyid,
   cp.id As CompanyPageID
 
-  from introductions intro join users u 
+  from introductions intro full join users u 
   on intro.IntroMessageSenderUserId = u.id 
-  join companypages cp on cp.canonicalcompanyid=u.canonicalcompanyid
+  full join companypages cp on cp.canonicalcompanyid=u.canonicalcompanyid
 
   where u.canonicalcompanyid = 7073 
-  and IntroMessageCreationDate > '2019-06-01'
+  and IntroMessageCreationDate > '2019-08-01'
   group by u.canonicalcompanyid, cp.id)
   SourcingTab
   
 ------------------------------------------------------End Of Sourcing----------------------------------------------------
 
-join
+full join
 
 
 ---------------------------------------------------Start of Branding Table--------------------------------------------------
@@ -43,7 +43,7 @@ from
   Round(sum(FBD.Clicks)*100.0 / sum(FBD.Impressions), 2) As CPA_CTR,
   cpap.companypageid
   from CompanypageAdPackages CPAP
-  join
+  full join
   [Calculon.Metrics].dbo.FlightsByDay FBD on
   fbd.flightid = CPAP.flightid
   where companypageid = 14199
@@ -51,7 +51,7 @@ from
   group by companypageid)
   AdTab
 
-join
+full join
 
   (select sum(cpv.visitcount) As PageViewCount, cpv.companypageid
   from companypagevisits cpv
@@ -68,7 +68,7 @@ pageviewstab.companypageid=AdTab.companypageid
 
 on
 SourcingTab.CompanyPageID = BrandingTab.companypageid
-join
+full join
 
 ----------------------------------------------------Start Of Job Table------------------------------------------------------
     --Job query returns:
@@ -92,7 +92,7 @@ join
 
 
 
-    inner join 
+    full join 
 
     --Start Click Query:
     (select 
@@ -113,7 +113,7 @@ join
         ) 
 
       sub1
-      full outer join
+      full join
   
         (
   
@@ -132,13 +132,13 @@ join
     Clicktab
     on Viewtab.jobid = clicktab.JobID
     
-    join
+    full join
     
     (select cpap.companypageid,
     count(case when js.isavailable = 0 then 1 else null end)*100/
     (count(case when js.isavailable = 1 then 1 else null end) +
     count(case when js.isavailable = 0 then 1 else null end)) As Utilization
-    from jobslot js join companypageadpackages cpap on js.orderid=cpap.orderid
+    from jobslot js full join companypageadpackages cpap on js.orderid=cpap.orderid
     where cpap.orderid in (177102)
     group by cpap.companypageid
     ) 
