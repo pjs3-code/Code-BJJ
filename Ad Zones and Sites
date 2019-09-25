@@ -1,0 +1,10 @@
+-- ad zones
+declare @side int = 1;
+declare @top int = 5;
+declare @mid int = 6;
+
+--Sites
+declare @so int = 2;
+declare @sf int = 3;
+
+from Analytics
