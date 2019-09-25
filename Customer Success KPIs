@@ -1,7 +1,7 @@
 -------------------------------------------------------Master Select----------------------------------------------------
 select 
 SourcingTab.CompanyPageID,
-AdTab.CPA_Impressions, AdTab.CPA_Clicks, AdTab.CPA_CTR, 
+BrandingTab.CPA_Impressions, BrandingTab.CPA_Clicks, BrandingTab.CPA_CTR, BrandingTab.PageViewCount,
 JobTab.Job_Views, JobTab.Job_Clicks, JobTab.Job_CTR, JobTab.Utilization As Job_Utilization_Pct,
 SourcingTab.Messages_Sent, SourcingTab.Replies, SourcingTab.Interested_Replies
 --------------------------------------------------- End of Master Select------------------------------------------------
@@ -32,11 +32,16 @@ join
 
 ---------------------------------------------------Start of Branding Table--------------------------------------------------
 
+  (
+  select adtab.CPA_Impressions, adtab.CPA_Clicks, adtab.CPA_CTR, adtab.companypageid,
+Pageviewstab.PageViewCount
+
+from
+
   (select sum(FBD.Impressions) As CPA_Impressions, 
   sum(FBD.Clicks) As CPA_Clicks, 
   Round(sum(FBD.Clicks)*100.0 / sum(FBD.Impressions), 2) As CPA_CTR,
   cpap.companypageid
-
   from CompanypageAdPackages CPAP
   join
   [Calculon.Metrics].dbo.FlightsByDay FBD on
@@ -45,11 +50,24 @@ join
   and date between '2019-01-01' and '2019-09-19'
   group by companypageid)
   AdTab
+
+join
+
+  (select sum(cpv.visitcount) As PageViewCount, cpv.companypageid
+  from companypagevisits cpv
+  where companypageid = 14199 and date between '2019-01-01' and '2019-09-19'
+  group by cpv.companypageid)
+  Pageviewstab
+on
+pageviewstab.companypageid=AdTab.companypageid
+ 
+ )
+ BrandingTab 
 ---------------------------------------------------End of Branding Table-------------------------------------------------
 
 
 on
-SourcingTab.CompanyPageID = AdTab.companypageid
+SourcingTab.CompanyPageID = BrandingTab.companypageid
 join
 
 ----------------------------------------------------Start Of Job Table------------------------------------------------------
@@ -131,5 +149,6 @@ join
     JobTab
 ----------------------------------------------------End Of Job Table------------------------------------------------------
 
-on AdTab.CompanyPageId = JobTab.CompanyPageId
+on BrandingTab.CompanyPageId = JobTab.CompanyPageId
  
+
