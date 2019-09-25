@@ -1,9 +1,8 @@
-
 -------------------------------------------------------Master Select----------------------------------------------------
 select 
 SourcingTab.CompanyPageID,
 AdTab.CPA_Impressions, AdTab.CPA_Clicks, AdTab.CPA_CTR, 
-JobTab.Job_Views, JobTab.Job_Clicks, JobTab.Job_CTR,
+JobTab.Job_Views, JobTab.Job_Clicks, JobTab.Job_CTR, JobTab.Utilization As Job_Utilization_Pct,
 SourcingTab.Messages_Sent, SourcingTab.Replies, SourcingTab.Interested_Replies
 --------------------------------------------------- End of Master Select------------------------------------------------
 
@@ -36,7 +35,7 @@ join
   (select sum(FBD.Impressions) As CPA_Impressions, 
   sum(FBD.Clicks) As CPA_Clicks, 
   Round(sum(FBD.Clicks)*100.0 / sum(FBD.Impressions), 2) As CPA_CTR,
-  companypageid
+  cpap.companypageid
 
   from CompanypageAdPackages CPAP
   join
@@ -62,7 +61,7 @@ join
     
     (select sum(Viewtab.Views) As Job_Views, 
     sum(Clicktab.Clicks) As Job_Clicks,
-    Round(sum(Clicktab.Clicks)*100.0 / sum(Viewtab.Views),2) As Job_CTR,
+    Round(sum(Clicktab.Clicks)*100.0 / sum(Viewtab.Views),2) As Job_CTR, UtilizationTab.Utilization,
     Clicktab.CompanyPageID
 
     from 
@@ -85,36 +84,52 @@ join
 
     from 
 
-      (
+        (
+    
+        select sum(ApplyButtonClickCount) As ClicksA, jobid, jabc.companypageid
+        from JobApplyButtonClicks jabc
+        where date between '2019-01-01' and '2019-09-19'
+        and jabc.companypageid in (14199, 20011)
+        group by jobid, companypageid
   
-      select sum(ApplyButtonClickCount) As ClicksA, jobid, companypageid
-      from JobApplyButtonClicks
-      where date between '2019-01-01' and '2019-09-19'
-      and companypageid in (14199, 20011)
-      group by jobid, companypageid
+        ) 
+
+      sub1
+      full outer join
   
-      ) 
-
-    sub1
-    full outer join
-
-      (
+        (
   
-      select sum(ApplyOutClickCount) As ClicksB, jobid, companypageid
-      from JobApplyOutClick 
-      where date between '2019-01-01' and '2019-09-19'
-      and companypageid in (14199, 20011)
-      group by jobid, companypageid
+        select sum(ApplyOutClickCount) As ClicksB, jobid, jaoc.companypageid
+        from JobApplyOutClick jaoc
+        where date between '2019-01-01' and '2019-09-19'
+        and jaoc.companypageid in (14199, 20011)
+        group by jobid, jaoc.companypageid
   
-      )
+        )
 
-    sub2
+      sub2
 
-    on sub1.jobid = sub2.jobid) Clicktab
-
+      on sub1.jobid = sub2.jobid) 
+    
+    Clicktab
     on Viewtab.jobid = clicktab.JobID
-    Group By CompanyPageID) 
+    
+    join
+    
+    (select cpap.companypageid,
+    count(case when js.isavailable = 0 then 1 else null end)*100/
+    (count(case when js.isavailable = 1 then 1 else null end) +
+    count(case when js.isavailable = 0 then 1 else null end)) As Utilization
+    from jobslot js join companypageadpackages cpap on js.orderid=cpap.orderid
+    where cpap.orderid in (177102)
+    group by cpap.companypageid
+    ) 
+    UtilizationTab
+    on UtilizationTab.companypageid = ClickTab.CompanyPageId
+    
+    Group By ClickTab.CompanyPageID, UtilizationTab.Utilization) 
     JobTab
 ----------------------------------------------------End Of Job Table------------------------------------------------------
 
 on AdTab.CompanyPageId = JobTab.CompanyPageId
+ 
