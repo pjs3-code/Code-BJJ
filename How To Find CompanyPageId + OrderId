@@ -1,0 +1,5 @@
+select * --companypageid
+from companypageadpackages cpp join companypages cp
+on cp.id = cpp.companypageid
+where cp.name like '%Google%'
+order by Activationdate
