@@ -1,0 +1,13 @@
+select cpap.companypageid,
+
+count(case when js.isavailable = 0 then 1 else null end)*100/
+
+(count(case when js.isavailable = 1 then 1 else null end) +
+count(case when js.isavailable = 0 then 1 else null end)) As Utilization
+
+
+from jobslot js join companypageadpackages cpap on js.orderid=cpap.orderid
+where cpap.orderid in (177102)
+group by cpap.companypageid
+
+--needs job slot id
