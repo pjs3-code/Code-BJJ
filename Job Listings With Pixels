@@ -1,0 +1,55 @@
+
+select pixels.datecreated, pixels.jobid, pixels.CompanyName, pixels.Title, pixels.analyticspixel, views.views, stats.clicks, stats.clicks*100/views.views As CTR
+ from
+   (
+    
+    select 
+    case when ClicksA is not Null then ClicksA else ClicksB end As Clicks,
+    case when sub1.jobid is not null then sub1.jobid else sub2.jobid end As JobID
+
+    from 
+
+        (
+    
+        select sum(ApplyButtonClickCount) As ClicksA, jobid
+        from JobApplyButtonClicks jabc
+        where date between '2019-04-01' and '2019-09-24'
+        group by jobid
+  
+        ) 
+
+      sub1
+      full join
+  
+        (
+  
+        select sum(ApplyOutClickCount) As ClicksB, jobid
+        from JobApplyOutClick jaoc
+        where date between '2019-04-01' and '2019-09-19'
+        group by jobid
+  
+        )
+
+      sub2
+
+      on sub1.jobid = sub2.jobid
+      
+      ) Stats
+      join
+      
+      
+      (select datecreated, JobId, title, CompanyName, job.analyticspixel
+      from job
+      where datecreated >'2019-03-31' and analyticspixel is not null) pixels
+      
+      on pixels.jobid = stats.jobid  
+      
+      join 
+      
+      (select jobid, sum(VisitCount) As Views
+      from jobvisits
+      where date between '2019-04-01' and '2019-09-26'
+      group by jobid) Views
+      on views.jobid = stats.jobid
+      order by views.views desc
+      
