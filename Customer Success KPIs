@@ -1,3 +1,6 @@
+declare @Start  date = '##StartDate##'
+declare @end  date = '##EndDate##'
+
 -------------------------------------------------------Master Select----------------------------------------------------
 select 
 JobTab.CompanyPageID,
@@ -21,7 +24,7 @@ From
   full join companypages cp on cp.canonicalcompanyid=u.canonicalcompanyid
 
   where u.canonicalcompanyid = 7073 
-  and IntroMessageCreationDate > '2019-08-01'
+  and IntroMessageCreationDate > @Start
   group by u.canonicalcompanyid, cp.id)
   SourcingTab
   
@@ -47,7 +50,7 @@ from
   [Calculon.Metrics].dbo.FlightsByDay FBD on
   fbd.flightid = CPAP.flightid
   where companypageid = 14199
-  and date between '2019-01-01' and '2019-09-19'
+  and date between @Start and @end
   group by companypageid)
   AdTab
 
@@ -55,7 +58,7 @@ full join
 
   (select sum(cpv.visitcount) As PageViewCount, cpv.companypageid
   from companypagevisits cpv
-  where companypageid = 14199 and date between '2019-01-01' and '2019-09-19'
+  where companypageid = 14199 and date between @Start and @end
   group by cpv.companypageid)
   Pageviewstab
 on
@@ -86,7 +89,7 @@ full join
 
     (select sum(visitcount) As Views, jobid
     from jobvisits
-    where date between '2019-01-01' and '2019-09-19'
+    where date between @Start and @end
     group by jobid) 
     Viewtab
 
@@ -106,7 +109,7 @@ full join
     
         select sum(ApplyButtonClickCount) As ClicksA, jobid, jabc.companypageid
         from JobApplyButtonClicks jabc
-        where date between '2019-01-01' and '2019-09-19'
+        where date between @Start and @end
         and jabc.companypageid in (14199, 20011)
         group by jobid, companypageid
   
@@ -119,7 +122,7 @@ full join
   
         select sum(ApplyOutClickCount) As ClicksB, jobid, jaoc.companypageid
         from JobApplyOutClick jaoc
-        where date between '2019-01-01' and '2019-09-19'
+        where date between @Start and @end
         and jaoc.companypageid in (14199, 20011)
         group by jobid, jaoc.companypageid
   
@@ -150,5 +153,4 @@ full join
 ----------------------------------------------------End Of Job Table------------------------------------------------------
 
 on BrandingTab.CompanyPageId = JobTab.CompanyPageId
- 
-
+where jobtab.companypageid is not null
