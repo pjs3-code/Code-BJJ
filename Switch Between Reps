@@ -1,0 +1,18 @@
+Begin
+declare @Rep char = '##Name##'
+
+
+
+declare @zeke table (id int)
+insert @zeke values (4), (5), (6)
+
+declare @pankit table (id int)
+insert @pankit values (1), (2), (3)
+
+End
+
+/*case when @rep = 'pankit' then
+
+select creationdate
+from users
+where id in (case when @rep = 'pankit' then @pankit else @zeke end) */
