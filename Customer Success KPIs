@@ -3,7 +3,7 @@ declare @end  date = '##EndDate##'
 
 -------------------------------------------------------Master Select----------------------------------------------------
 select 
-JobTab.CompanyPageID,
+JobTab.CompanyName, JobTab.CompanyPageID,
 BrandingTab.CPA_Impressions, BrandingTab.CPA_Clicks, BrandingTab.CPA_CTR, BrandingTab.PageViewCount,
 JobTab.Job_Views, JobTab.Job_Clicks, JobTab.Job_CTR, JobTab.Utilization As Job_Utilization_Pct,
 SourcingTab.Messages_Sent, SourcingTab.Replies, SourcingTab.Interested_Replies
@@ -80,7 +80,7 @@ full join
     --Job CTR
     --Company Page ID
     
-    (select sum(Viewtab.Views) As Job_Views, 
+    (select NameCo.CompanyName, sum(Viewtab.Views) As Job_Views, 
     sum(Clicktab.Clicks) As Job_Clicks,
     Round(sum(Clicktab.Clicks)*100.0 / sum(Viewtab.Views),2) As Job_CTR, UtilizationTab.Utilization,
     Clicktab.CompanyPageID
@@ -135,6 +135,15 @@ full join
     Clicktab
     on Viewtab.jobid = clicktab.JobID
     
+     join 
+        (
+        select CompanyName, jobid
+        from job
+        ) NameCo
+        
+        on nameco.jobid = ClickTab.jobid
+    
+    
     full join
     
     (select cpap.companypageid,
@@ -148,7 +157,7 @@ full join
     UtilizationTab
     on UtilizationTab.companypageid = ClickTab.CompanyPageId
     
-    Group By ClickTab.CompanyPageID, UtilizationTab.Utilization) 
+    Group By ClickTab.CompanyPageID, UtilizationTab.Utilization, NameCo.CompanyName) 
     JobTab
 ----------------------------------------------------End Of Job Table------------------------------------------------------
 
