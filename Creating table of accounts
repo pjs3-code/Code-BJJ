@@ -1,21 +1,28 @@
-
---declaring rep
-declare @rep char(40) = '##REP##'
-
+DECLARE @rep char(40)
 declare @accounts table
 (
 id int
 )
-
-
---insertion into table
-******Must Be Fixed*****case when @rep = 'PANKIT' THEN insert into @accounts values (1), (2), (3), (4) ELSE null end
+SET @rep = '##Rep##'
 
 
 
+BEGIN
 
---Block of code
-select DisplayName
-from users
-where Id in
-(select Id from @accounts)
+begin
+if @rep = 'PANKIT'
+insert into @accounts values (1), (3), (5)
+end
+  
+begin
+if @rep = 'ZEKE'
+insert into @accounts values (2), (4), (6)
+end
+
+  SELECT Displayname
+  FROM Users
+  where id in (select id from @accounts)
+ 
+ 
+ END
+ 
