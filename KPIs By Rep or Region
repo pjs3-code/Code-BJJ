@@ -1,0 +1,182 @@
+declare @Start  date = '##StartDate##'
+declare @end  date = '##EndDate##'
+DECLARE @rep char(40)
+declare @accounts table (id int)
+
+SET @rep = '##Rep##'
+BEGIN
+
+begin
+if @rep = 'PANKIT'
+insert into @accounts values (14199), (20011)
+end
+  
+begin
+if @rep = 'ZEKE'
+insert into @accounts values (2), (4), (6)
+END
+
+
+-------------------------------------------------------Master Select----------------------------------------------------
+select 
+JobTab.CompanyName, JobTab.CompanyPageID,
+BrandingTab.CPA_Impressions, BrandingTab.CPA_Clicks, BrandingTab.CPA_CTR, BrandingTab.PageViewCount,
+JobTab.Job_Views, JobTab.Job_Clicks, JobTab.Job_CTR, JobTab.Utilization As Job_Utilization_Pct,
+SourcingTab.Messages_Sent, SourcingTab.Replies, SourcingTab.Interested_Replies
+--------------------------------------------------- End of Master Select------------------------------------------------
+
+
+From 
+-----------------------------------------------------Start of Sourcing---------------------------------------------------
+
+  (select count(*) As Messages_Sent, 
+  count(ResonseInterestIndicatorDescription) As Replies, 
+  count(case when ResonseInterestIndicatorDescription = 'Interested' then 1 else null end) As Interested_Replies, 
+  u.canonicalcompanyid,
+  cp.id As CompanyPageID
+
+  from introductions intro full join users u 
+  on intro.IntroMessageSenderUserId = u.id 
+  full join companypages cp on cp.canonicalcompanyid=u.canonicalcompanyid
+
+  where u.canonicalcompanyid = 7073 
+  and IntroMessageCreationDate > @Start
+  group by u.canonicalcompanyid, cp.id)
+  SourcingTab
+  
+------------------------------------------------------End Of Sourcing----------------------------------------------------
+
+full join
+
+
+---------------------------------------------------Start of Branding Table--------------------------------------------------
+
+  (
+  select adtab.CPA_Impressions, adtab.CPA_Clicks, adtab.CPA_CTR, adtab.companypageid,
+Pageviewstab.PageViewCount
+
+from
+
+  (select sum(FBD.Impressions) As CPA_Impressions, 
+  sum(FBD.Clicks) As CPA_Clicks, 
+  Round(sum(FBD.Clicks)*100.0 / sum(FBD.Impressions), 2) As CPA_CTR,
+  cpap.companypageid
+  from CompanypageAdPackages CPAP
+  join
+  [Calculon.Metrics].dbo.FlightsByDay FBD on
+  fbd.flightid = CPAP.flightid
+  where companypageid in (select id from @accounts)
+  and date between @Start and @end
+  group by companypageid)
+  AdTab
+
+full join
+
+  (select sum(cpv.visitcount) As PageViewCount, cpv.companypageid
+  from companypagevisits cpv
+  where companypageid in (select id from @accounts) and date between @Start and @end
+  group by cpv.companypageid)
+  Pageviewstab
+on
+pageviewstab.companypageid=AdTab.companypageid
+ 
+ )
+ BrandingTab 
+---------------------------------------------------End of Branding Table-------------------------------------------------
+
+
+on
+SourcingTab.CompanyPageID = BrandingTab.companypageid
+full join
+
+----------------------------------------------------Start Of Job Table------------------------------------------------------
+    --Job query returns:
+    --Job Views
+    --Job Clicks
+    --Job CTR
+    --Company Page ID
+    
+    (select NameCo.CompanyName, sum(Viewtab.Views) As Job_Views, 
+    sum(Clicktab.Clicks) As Job_Clicks,
+    Round(sum(Clicktab.Clicks)*100.0 / sum(Viewtab.Views),2) As Job_CTR, UtilizationTab.Utilization,
+    Clicktab.CompanyPageID
+
+    from 
+
+    (select sum(visitcount) As Views, jobid
+    from jobvisits
+    where date between @Start and @end
+    group by jobid) 
+    Viewtab
+
+
+
+    full join 
+
+    --Start Click Query:
+    (select 
+    case when ClicksA is not Null then ClicksA else ClicksB end As Clicks,
+    case when sub1.jobid is not null then sub1.jobid else sub2.jobid end As JobID,
+    case when sub1.companypageid is not null then sub1.companypageid else sub2.companypageid end as CompanyPageID
+
+    from 
+
+        (
+    
+        select sum(ApplyButtonClickCount) As ClicksA, jobid, jabc.companypageid
+        from JobApplyButtonClicks jabc
+        where date between @Start and @end
+        and jabc.companypageid in (select id from @accounts)
+        group by jobid, companypageid
+  
+        ) 
+
+      sub1
+      full join
+  
+        (
+  
+        select sum(ApplyOutClickCount) As ClicksB, jobid, jaoc.companypageid
+        from JobApplyOutClick jaoc
+        where date between @Start and @end
+        and jaoc.companypageid in (select id from @accounts)
+        group by jobid, jaoc.companypageid
+  
+        )
+
+      sub2
+
+      on sub1.jobid = sub2.jobid) 
+    
+    Clicktab
+    on Viewtab.jobid = clicktab.JobID
+    
+     join 
+        (
+        select CompanyName, jobid
+        from job
+        ) NameCo
+        
+        on nameco.jobid = ClickTab.jobid
+    
+    
+    full join
+    
+    (select cpap.companypageid,
+    count(case when js.isavailable = 0 then 1 else null end)*100/
+    (count(case when js.isavailable = 1 then 1 else null end) +
+    count(case when js.isavailable = 0 then 1 else null end)) As Utilization
+    from jobslot js full join companypageadpackages cpap on js.orderid=cpap.orderid
+    where cpap.orderid in (177102)
+    group by cpap.companypageid
+    ) 
+    UtilizationTab
+    on UtilizationTab.companypageid = ClickTab.CompanyPageId
+    
+    Group By ClickTab.CompanyPageID, UtilizationTab.Utilization, NameCo.CompanyName) 
+    JobTab
+----------------------------------------------------End Of Job Table------------------------------------------------------
+
+on BrandingTab.CompanyPageId = JobTab.CompanyPageId
+where jobtab.companypageid is not null
+end
