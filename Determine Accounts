@@ -10,14 +10,3 @@ SET @account = CASE @rep
     ELSE
         456
 END
-
-PRINT @account;
-
-SET @account = CASE 
-    WHEN @rep = 'Pankit' THEN 
-        123
-    ELSE
-        456
-END
-
-PRINT @account
