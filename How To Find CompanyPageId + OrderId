@@ -1,4 +1,4 @@
-select * --companypageid
+select companypageid, OrderId, CanonicalCompanyId
 from companypageadpackages cpp join companypages cp
 on cp.id = cpp.companypageid
 where cp.name like '%Google%'
