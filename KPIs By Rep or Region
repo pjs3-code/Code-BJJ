@@ -1,19 +1,26 @@
 declare @Start  date = '##StartDate##'
 declare @end  date = '##EndDate##'
-DECLARE @rep char(40)
-declare @accounts table (id int)
+declare @rep char(40)
+declare @companypageidlist table (id int)
+declare @orderidlist table (id int)
+declare @canonicalcompanyidlist table (id int)
 
 SET @rep = '##Rep##'
 BEGIN
 
 begin
 if @rep = 'PANKIT'
-insert into @accounts values (14199), (20011)
+insert into @companypageidlist values (14199) /*THD*/, (20011) /*QC*/
+insert into @orderidlist values (177102) /*THD + QC*/  
+insert into @canonicalcompanyidlist values (7073) /*THD*/
 end
   
 begin
 if @rep = 'ZEKE'
-insert into @accounts values (2), (4), (6)
+insert into @companypageidlist values (5872) /*GOOGLE*/, (20011) /*QC*/
+insert into @orderidlist values (176922) /*THD + QC*/  
+insert into @canonicalcompanyidlist values (2945) /*Google*/
+
 END
 
 
@@ -29,7 +36,7 @@ SourcingTab.Messages_Sent, SourcingTab.Replies, SourcingTab.Interested_Replies
 From 
 -----------------------------------------------------Start of Sourcing---------------------------------------------------
 
-  (select count(*) As Messages_Sent, 
+  (select count(intro.MessageThreadId) As Messages_Sent, 
   count(ResonseInterestIndicatorDescription) As Replies, 
   count(case when ResonseInterestIndicatorDescription = 'Interested' then 1 else null end) As Interested_Replies, 
   u.canonicalcompanyid,
@@ -39,8 +46,8 @@ From
   on intro.IntroMessageSenderUserId = u.id 
   full join companypages cp on cp.canonicalcompanyid=u.canonicalcompanyid
 
-  where u.canonicalcompanyid = 7073 
-  and IntroMessageCreationDate > @Start
+  where u.canonicalcompanyid in (select id from @canonicalcompanyidlist)
+  and IntroMessageCreationDate between @Start and @end
   group by u.canonicalcompanyid, cp.id)
   SourcingTab
   
@@ -65,7 +72,7 @@ from
   join
   [Calculon.Metrics].dbo.FlightsByDay FBD on
   fbd.flightid = CPAP.flightid
-  where companypageid in (select id from @accounts)
+  where companypageid in (select id from @companypageidlist)
   and date between @Start and @end
   group by companypageid)
   AdTab
@@ -74,7 +81,7 @@ full join
 
   (select sum(cpv.visitcount) As PageViewCount, cpv.companypageid
   from companypagevisits cpv
-  where companypageid in (select id from @accounts) and date between @Start and @end
+  where companypageid in (select id from @companypageidlist) and date between @Start and @end
   group by cpv.companypageid)
   Pageviewstab
 on
@@ -126,7 +133,7 @@ full join
         select sum(ApplyButtonClickCount) As ClicksA, jobid, jabc.companypageid
         from JobApplyButtonClicks jabc
         where date between @Start and @end
-        and jabc.companypageid in (select id from @accounts)
+        and jabc.companypageid in (select id from @companypageidlist)
         group by jobid, companypageid
   
         ) 
@@ -139,7 +146,7 @@ full join
         select sum(ApplyOutClickCount) As ClicksB, jobid, jaoc.companypageid
         from JobApplyOutClick jaoc
         where date between @Start and @end
-        and jaoc.companypageid in (select id from @accounts)
+        and jaoc.companypageid in (select id from @companypageidlist)
         group by jobid, jaoc.companypageid
   
         )
@@ -167,7 +174,7 @@ full join
     (count(case when js.isavailable = 1 then 1 else null end) +
     count(case when js.isavailable = 0 then 1 else null end)) As Utilization
     from jobslot js full join companypageadpackages cpap on js.orderid=cpap.orderid
-    where cpap.orderid in (177102)
+    where cpap.orderid in (select id from @orderidlist)
     group by cpap.companypageid
     ) 
     UtilizationTab
