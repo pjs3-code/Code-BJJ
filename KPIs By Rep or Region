@@ -10,16 +10,16 @@ BEGIN
 
 begin
 if @rep = 'PANKIT'
-insert into @companypageidlist values (14199) /*THD*/, (20011) /*QC*/
-insert into @orderidlist values (177102) /*THD + QC*/  
-insert into @canonicalcompanyidlist values (7073) /*THD*/
+insert into @companypageidlist values (14199) /*THD*/, (20011) /*QC*/, (28975) /*Apple*/
+insert into @orderidlist values (177102) /*THD + QC*/, (176399) /*Apple*/
+insert into @canonicalcompanyidlist values (7073) /*THD*/, (462) /*Apple*/
 end
   
 begin
 if @rep = 'ZEKE'
-insert into @companypageidlist values (5872) /*GOOGLE*/, (20011) /*QC*/
-insert into @orderidlist values (176922) /*THD + QC*/  
-insert into @canonicalcompanyidlist values (2945) /*Google*/
+insert into @companypageidlist values (5872) /*GOOGLE*/, (3976) /*Amazon*/, (11888) 
+insert into @orderidlist values (176922) /*GOOGLE*/, (176910) /*Amazon*/, (175765) 
+insert into @canonicalcompanyidlist values (2945) /*GOOGLE*/, (363) /*Amazon*/, (2472)
 
 END
 
