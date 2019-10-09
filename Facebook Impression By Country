@@ -1,0 +1,4 @@
+select country, sum(impressions), sum(clicks)
+from reportinganalytics
+where flightid = 226379 and date between '2019-09-01' and '2019-10-09'
+group by rollup(country)
