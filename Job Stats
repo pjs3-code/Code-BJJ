@@ -5,7 +5,10 @@ declare @orderidlist table (id int)
 insert into @companypageidlist values (5872) /*GOOGLE*/, (3976) /*Amazon*/, (11888) 
 insert into @orderidlist values (176922) /*GOOGLE*/, (176910) /*Amazon*/, (175765) 
 
-select viewtab.companyname, sum(viewtab.views), sum(clicktab.clicks), utilizationtab.utilization
+select viewtab.companyname, 
+sum(viewtab.views) As Views, 
+sum(clicktab.clicks) As Clicks, 
+utilizationtab.utilization
 from
 
 (select sum(case when job.state = 4 and job.datestatechanged < @start then null else visitcount end) As Views, 
@@ -18,28 +21,19 @@ from
     
 full outer join
    
-(select 
-    case when ClicksA is not Null then ClicksA else ClicksB end As Clicks,
-    case when sub1.jobid is not null then sub1.jobid else sub2.jobid end As JobID,
-    case when sub1.companypageid is not null then sub1.companypageid else sub2.companypageid end as CompanyPageID
-
-    from 
-
-        ( select sum(ApplyButtonClickCount) As ClicksA, jobid, jabc.companypageid
-        from JobApplyButtonClicks jabc
-        where date between @Start and @end
-        and jabc.companypageid in (select id from @companypageidlist)
-        group by jobid, companypageid ) sub1
-      
-    full join
+(select sum(ApplyButtonClickCount) As Clicks, job.jobid, companyname
+        from JobApplyButtonClicks jabc join job on job.jobid = jabc.jobid
+        where date between '2019-01-01' and '2019-10-12'
+        and companyname in ('Facebook', 'Google', 'Amazon')
+        group by job.jobid, companyname
+     
+union
   
-        (select sum(ApplyOutClickCount) As ClicksB, jobid, jaoc.companypageid
-        from JobApplyOutClick jaoc
-        where date between @Start and @end
-        and jaoc.companypageid in (select id from @companypageidlist)
-        group by jobid, jaoc.companypageid) sub2
-    
-    on sub1.jobid = sub2.jobid) Clicktab
+        select sum(ApplyOutClickCount) As Clicks, job.jobid, companyname
+        from JobApplyOutClick jaoc join job on job.jobid = jaoc.jobid
+        where date between '2019-01-01' and '2019-10-12'
+        and companyname in ('Facebook', 'Google', 'Amazon')
+        group by job.jobid, companyname) Clicktab
     on Viewtab.jobid = clicktab.JobID
     
     cross join
@@ -50,8 +44,3 @@ full outer join
     count(case when js.isavailable = 0 then 1 else null end)) As Utilization
     from jobslot js
     where js.orderid in (select id from @orderidlist))  UtilizationTab
- 
-    
-    
-    
-    group by viewtab.companyname, utilizationtab.utilization
