@@ -44,3 +44,5 @@ union
     count(case when js.isavailable = 0 then 1 else null end)) As Utilization
     from jobslot js
     where js.orderid in (select id from @orderidlist))  UtilizationTab
+    
+    group by viewtab.companyname, utilizationtab.utilization
