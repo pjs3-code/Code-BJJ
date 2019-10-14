@@ -1,0 +1,13 @@
+select sum(ApplyButtonClickCount) As ClicksA, job.jobid, companyname
+        from JobApplyButtonClicks jabc join job on job.jobid = jabc.jobid
+        where date between '2019-01-01' and '2019-10-12'
+        and companyname = 'Facebook'
+        group by job.jobid, companyname
+     
+union
+  
+        select sum(ApplyOutClickCount) As ClicksB, job.jobid, companyname
+        from JobApplyOutClick jaoc join job on job.jobid = jaoc.jobid
+        where date between '2019-01-01' and '2019-10-12'
+        and companyname = 'Facebook'
+        group by job.jobid, companyname
