@@ -1,0 +1,76 @@
+declare @Start  date = '##StartDate##'
+declare @end  date = '##EndDate##'
+    
+select 
+clicktab.companyname, viewtab.views As Views, 
+sum(clicktab.clicks) As Clicks,  
+utilizationtab.utilization,
+utilizationtab.companypageid, adtab.CPA_Impressions, adtab.CPA_Clicks, adtab.CPA_CTR, Pageviewtab.PageViewCount
+
+from
+
+  (select 
+        sum(case when job.state = 4 and job.datestatechanged < @start then 0 else visitcount end) As Views, 
+        companyname
+    from jobvisits 
+    join job on jobvisits.jobid = job.jobid
+    where jobvisits.date between @start and @end
+    and job.companyname in ('Facebook', 'Google', 'Amazon')
+    group by companyname) Viewtab
+    
+left join
+   
+        (select sum(ApplyButtonClickCount) As Clicks, companyname
+        from JobApplyButtonClicks jabc join job on job.jobid = jabc.jobid
+        where date between @start and @end
+        and companyname in ('Facebook', 'Google', 'Amazon')
+        group by companyname
+union
+        select sum(ApplyOutClickCount) As Clicks, companyname
+        from JobApplyOutClick jaoc join job on job.jobid = jaoc.jobid
+        where date between @start and @end
+        and companyname in ('Facebook', 'Google', 'Amazon')
+        group by companyname) Clicktab
+   
+on Viewtab.companyname = clicktab.companyname
+join 
+    
+      (select cpap.companypageid, name,
+    count(case when js.isavailable = 0 then 1 else null end)*100/
+    (count(case when js.isavailable = 1 then 1 else null end) +
+    count(case when js.isavailable = 0 then 1 else null end)) As Utilization
+    from jobslot js full join companypageadpackages cpap on js.orderid=cpap.orderid
+    join companypages cp on cp.id = cpap.companypageid
+    where cpap.orderid in (176922, 175765, 176910)
+    group by cpap.companypageid, name) Utilizationtab
+    
+on utilizationtab.name =viewtab.companyname
+
+join
+
+    (select cp.name, sum(FBD.Impressions) As CPA_Impressions, cp.id,
+    sum(FBD.Clicks) As CPA_Clicks, 
+    Round(sum(FBD.Clicks)*100.0 / sum(FBD.Impressions), 2) As CPA_CTR
+    from CompanypageAdPackages CPAP
+    join
+    [Calculon.Metrics].dbo.FlightsByDay FBD on
+    fbd.flightid = CPAP.flightid
+    join companypages cp on cp.id = cpap.companypageid
+    where cpap.companypageid in ((5872) /*GOOGLE*/, (3976) /*Amazon*/, (11888))
+    and fbd.date between @start and @end
+    group by cpap.companypageid, cp.name, cp.id) AdTab
+
+on adtab.name=clicktab.companyname
+
+join
+   (select sum(cpv.visitcount) As PageViewCount, cpv.companypageid
+  from companypagevisits cpv
+  where cpv.companypageid in ((5872) /*GOOGLE*/, (3976) /*Amazon*/, (11888)) and date between '2019-01-01' and '2019-10-15'
+  group by cpv.companypageid) Pageviewtab
+on pageviewtab.companypageid = adtab.id
+ 
+
+
+group by clicktab.companyname, viewtab.views, utilizationtab.utilization,
+utilizationtab.companypageid, adtab.CPA_Impressions, 
+adtab.CPA_Clicks, adtab.CPA_CTR, Pageviewtab.PageViewCount
