@@ -1,4 +1,4 @@
- declare @Start  date = '##StartDate##'
+  declare @Start  date = '##StartDate##'
 declare @end  date = '##EndDate##'
 /*
 select 
@@ -21,7 +21,7 @@ from
     from jobvisits 
     join job on jobvisits.jobid = job.jobid
     where jobvisits.date between @start and @end
-    and job.companyname in ('Facebook', 'Google')
+    and job.companyname in ('Facebook', 'Google', 'Amazon')
     group by companyname) Viewtab
     
 left join
@@ -29,7 +29,7 @@ left join
         (select sum(ApplyButtonClickCount) As Clicks, companyname
         from JobApplyButtonClicks jabc join job on job.jobid = jabc.jobid
         where date between @start and @end
-        and companyname in ('Facebook', 'Google')
+        and companyname in ('Facebook', 'Google', 'Amazon')
         group by companyname
      
 union
@@ -37,7 +37,7 @@ union
         select sum(ApplyOutClickCount) As Clicks, companyname
         from JobApplyOutClick jaoc join job on job.jobid = jaoc.jobid
         where date between @start and @end
-        and companyname in ('Facebook', 'Google')
+        and companyname in ('Facebook', 'Google', 'Amazon')
         group by companyname) Clicktab
    
    on Viewtab.companyname = clicktab.companyname
@@ -49,11 +49,10 @@ union
     count(case when js.isavailable = 0 then 1 else null end)) As Utilization
     from jobslot js full join companypageadpackages cpap on js.orderid=cpap.orderid
     join companypages cp on cp.id = cpap.companypageid
-    where cpap.orderid in (176922)
+    where cpap.orderid in (176922, 175765, 176910)
     group by cpap.companypageid, name) Utilizationtab
     
     on utilizationtab.name =viewtab.companyname
  
  group by clicktab.companyname, viewtab.views, utilizationtab.utilization,
  utilizationtab.companypageid
- 
