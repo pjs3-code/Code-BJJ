@@ -1,48 +1,59 @@
-declare @Start  date = '##StartDate##'
+ declare @Start  date = '##StartDate##'
 declare @end  date = '##EndDate##'
-declare @companypageidlist table (id int)
-declare @orderidlist table (id int)
-insert into @companypageidlist values (5872) /*GOOGLE*/, (3976) /*Amazon*/, (11888) 
-insert into @orderidlist values (176922) /*GOOGLE*/, (176910) /*Amazon*/, (175765) 
-
-select viewtab.companyname, 
-sum(viewtab.views) As Views, 
-sum(clicktab.clicks) As Clicks, 
-utilizationtab.utilization
-from
-
-(select sum(case when job.state = 4 and job.datestatechanged < @start then null else visitcount end) As Views, 
-        jobvisits.jobid, job.companyname
+/*
+select 
+        sum(case when job.state = 4 and job.datestatechanged < @start then null else visitcount end) As Views
     from jobvisits 
     join job on jobvisits.jobid = job.jobid
     where jobvisits.date between @start and @end
-    and job.companyname in ('Facebook', 'Google', 'Amazon')
-    group by jobvisits.jobid, job.companyname) Viewtab
+    and job.companyname in ('Facebook') */
     
-full outer join
+select 
+viewtab.views As Views, 
+sum(clicktab.clicks) As Clicks, clicktab.companyname, 
+utilizationtab.utilization,
+utilizationtab.companypageid
+from
+
+(select 
+        sum(case when job.state = 4 and job.datestatechanged < @start then 0 else visitcount end) As Views, 
+        companyname
+    from jobvisits 
+    join job on jobvisits.jobid = job.jobid
+    where jobvisits.date between @start and @end
+    and job.companyname in ('Facebook', 'Google')
+    group by companyname) Viewtab
+    
+left join
    
-(select sum(ApplyButtonClickCount) As Clicks, job.jobid, companyname
+        (select sum(ApplyButtonClickCount) As Clicks, companyname
         from JobApplyButtonClicks jabc join job on job.jobid = jabc.jobid
-        where date between '2019-01-01' and '2019-10-12'
-        and companyname in ('Facebook', 'Google', 'Amazon')
-        group by job.jobid, companyname
+        where date between @start and @end
+        and companyname in ('Facebook', 'Google')
+        group by companyname
      
 union
   
-        select sum(ApplyOutClickCount) As Clicks, job.jobid, companyname
+        select sum(ApplyOutClickCount) As Clicks, companyname
         from JobApplyOutClick jaoc join job on job.jobid = jaoc.jobid
-        where date between '2019-01-01' and '2019-10-12'
-        and companyname in ('Facebook', 'Google', 'Amazon')
-        group by job.jobid, companyname) Clicktab
-    on Viewtab.jobid = clicktab.JobID
+        where date between @start and @end
+        and companyname in ('Facebook', 'Google')
+        group by companyname) Clicktab
+   
+   on Viewtab.companyname = clicktab.companyname
+    join 
     
-    cross join
-    
-    (select
+      (select cpap.companypageid, name,
     count(case when js.isavailable = 0 then 1 else null end)*100/
     (count(case when js.isavailable = 1 then 1 else null end) +
     count(case when js.isavailable = 0 then 1 else null end)) As Utilization
-    from jobslot js
-    where js.orderid in (select id from @orderidlist))  UtilizationTab
+    from jobslot js full join companypageadpackages cpap on js.orderid=cpap.orderid
+    join companypages cp on cp.id = cpap.companypageid
+    where cpap.orderid in (176922)
+    group by cpap.companypageid, name) Utilizationtab
     
-    group by viewtab.companyname, utilizationtab.utilization
+    on utilizationtab.name =viewtab.companyname
+ 
+ group by clicktab.companyname, viewtab.views, utilizationtab.utilization,
+ utilizationtab.companypageid
+ 
