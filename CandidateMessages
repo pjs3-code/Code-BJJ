@@ -1,7 +1,7 @@
-select count(distinct messagethreadid) As Messages, count(InterestedIndicator)
-from candidatemessages
-where EmailedDate between '2019-01-01' and '2019-10-19' and
-senderuserid in (select id from users where companyid = 557)
-group by companyid
 
---Facebook sent messages
+select count(distinct messagethreadid) As Messages,
+count(case when ResponseInterestIndicator = 4 then 1 else null end) 
+from introductions join users u on introductions.intromessagesenderuserid = u.id
+where IntroMessageCreationDate
+between '2019-01-01' and '2019-10-19' and u.companyid in (557, 2003, 1146)
+group by companyid
