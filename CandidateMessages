@@ -1,6 +1,6 @@
 
 select count(distinct messagethreadid) As Messages,
-count(case when ResponseInterestIndicator = 4 then 1 else null end) 
+count(distinct(case when ResponseInterestIndicator = 4 then candidateid else null end)) 
 from introductions join users u on introductions.intromessagesenderuserid = u.id
 where IntroMessageCreationDate
 between '2019-01-01' and '2019-10-19' and u.companyid in (557, 2003, 1146)
