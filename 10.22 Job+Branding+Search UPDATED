@@ -1,0 +1,114 @@
+declare @Start  date = '##StartDate##'
+declare @end  date = '##EndDate##'
+declare @rep char(40)
+
+declare @companyname table (id char(40))
+declare @companypageidlist table (id int)
+declare @orderidlist table (id int)
+declare @companyid table (id int)
+
+SET @rep = '##Rep##'
+BEGIN
+
+if @rep = 'ZEKE'
+
+insert into @companyname values ('Facebook'), ('Google'), ('Amazon')
+insert into @companypageidlist values (5872) /*GOOGLE*/, (3976) /*Amazon*/, (11888) 
+insert into @orderidlist values (176922) /*GOOGLE*/, (176910) /*Amazon*/, (175765) 
+insert into @companyid values (557), (2003), (1146)
+
+
+select 
+clicktab.companyname, viewtab.views As Views,  
+sum(clicktab.clicks) As Clicks, Round(sum(clicktab.clicks)*100.0/viewtab.views,1) As CTR,
+utilizationtab.utilization, adtab.CPA_Impressions, adtab.CPA_Clicks, adtab.CPA_CTR, Pageviewtab.PageViewCount,
+CandidateSearch.Messages, CandidateSearch.Interested
+
+from
+  
+--Job Views  
+  (select 
+        sum(case when job.state = 4 and job.datestatechanged < @start then 0 else visitcount end) As Views, 
+        companyname
+    from jobvisits 
+    join job on jobvisits.jobid = job.jobid
+    where jobvisits.date between @start and @end
+    and job.companyname in (select id from @companyname)
+    group by companyname) Viewtab
+
+--Job Clicks
+left join
+   
+        (select sum(ApplyButtonClickCount) As Clicks, companyname
+        from JobApplyButtonClicks jabc join job on job.jobid = jabc.jobid
+        where date between @start and @end
+        and companyname in (select id from @companyname)
+        group by companyname
+union
+        select sum(ApplyOutClickCount) As Clicks, companyname
+        from JobApplyOutClick jaoc join job on job.jobid = jaoc.jobid
+        where date between @start and @end
+        and companyname in (select id from @companyname)
+        group by companyname) Clicktab 
+on Viewtab.companyname = clicktab.companyname
+
+--Job Slot Utilization
+join 
+      (select cpap.companypageid, name,
+    count(case when js.isavailable = 0 then 1 else null end)*100/
+    (count(case when js.isavailable = 1 then 1 else null end) +
+    count(case when js.isavailable = 0 then 1 else null end)) As Utilization
+    from jobslot js full join companypageadpackages cpap on js.orderid=cpap.orderid
+    join companypages cp on cp.id = cpap.companypageid
+    where cpap.orderid in (select id from @orderidlist)
+    group by cpap.companypageid, name) Utilizationtab
+    
+on utilizationtab.name =viewtab.companyname
+
+--Branding Impressions & Clicks
+join 
+    (select cp.name, sum(FBD.Impressions) As CPA_Impressions, cp.id,
+    sum(FBD.Clicks) As CPA_Clicks, 
+    Round(sum(FBD.Clicks)*100.0 / sum(FBD.Impressions), 2) As CPA_CTR
+    from CompanypageAdPackages CPAP
+    join
+    [Calculon.Metrics].dbo.FlightsByDay FBD on
+    fbd.flightid = CPAP.flightid
+    join companypages cp on cp.id = cpap.companypageid
+    where cpap.companypageid in (select id from @companypageidlist)
+    and fbd.date between @start and @end
+    group by cpap.companypageid, cp.name, cp.id) AdTab
+
+on adtab.name=clicktab.companyname
+
+--Company Page View Stats
+join 
+   (select sum(cpv.visitcount) As PageViewCount, cpv.companypageid
+  from companypagevisits cpv
+  where cpv.companypageid in (select id from @companypageidlist) and date between @start and @end
+  group by cpv.companypageid) Pageviewtab
+on pageviewtab.companypageid = adtab.id
+
+--Candidate Search Stats
+join 
+  (select case when name = 'Facebook Inc.' then 'Facebook'
+            when name = 'Amazon - US' then 'Amazon'
+            when name = 'Google' then 'Google'
+            else null end As CompanyName, 
+
+count(distinct messagethreadid) As Messages,
+count(distinct(case when ResponseInterestIndicator = 4 then candidateid else null end)) As Interested 
+from introductions join users u on introductions.intromessagesenderuserid = u.id
+join companies c on c.id = u.companyid 
+where IntroMessageCreationDate
+between @start and @end and u.companyid in (select id from @companyid)
+group by companyid, name) CandidateSearch
+on Viewtab.companyname = CandidateSearch.CompanyName
+ 
+
+
+group by clicktab.companyname, viewtab.views, utilizationtab.utilization,
+utilizationtab.companypageid, adtab.CPA_Impressions, 
+adtab.CPA_Clicks, adtab.CPA_CTR, Pageviewtab.PageViewCount, CandidateSearch.Messages, CandidateSearch.Interested
+
+END
