@@ -1,3 +1,5 @@
+
+--Job Stats
 /*
 select sum(case when job.state = 4 and job.datestatechanged < '2019-09-20' then 0 else visitcount end) As Views, 
         companyname
@@ -22,6 +24,7 @@ union
         group by companyid
  */
 
+--CPA Stats
 /*
  
  select companyid, sum(FBD.Impressions) As CPA_Impressions,
@@ -37,18 +40,16 @@ union
     group by companyid
     */
   
+
+--Company Page Visits
+  /*
+  select sum(visitcount)
+  from companypagevisits
+  where companypageid in 
+    (select cpap.companypageid
+    from companypageadpackages cpap join users u on cpap.OwnerUserId=u.id
+    where u.companyid = 557)
+  and date between '2019-01-01' and '2019-10-27'
+  */
   
  
-select *
-  from companypagevisits cpv 
-  join companypageadpackages cpap on cpv.CompanyPageId=cpap.id
-  join users u on u.id=cpap.owneruserid
-  where u.companyid in (557) and date between '2019-01-01' and '2019-10-27'
- 
-  /*
-  select sum(cpv.visitcount) As PageViewCount, cpv.companypageid
-  from companypagevisits cpv 
-  join companypageadpackages cpap on cpv.companypageid=cpap.companypageid
-  where cpv.companypageid in (11888) and date between '2019-10-01' and '2019-10-27'
-  group by cpv.companypageid
- */
