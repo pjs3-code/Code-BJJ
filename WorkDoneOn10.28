@@ -1,0 +1,54 @@
+/*
+select sum(case when job.state = 4 and job.datestatechanged < '2019-09-20' then 0 else visitcount end) As Views, 
+        companyname
+from job join users u on job.userid=u.id
+join jobvisits jv on jv.jobid=job.jobid
+where u.companyid = 557 and date between '2019-09-20' and '2019-10-27'
+group by companyname
+
+
+select sum(ApplyButtonClickCount) As Clicks, companyid
+        from JobApplyButtonClicks jabc join job on job.jobid = jabc.jobid
+        join users on job.userid = users.id
+        where date between '2019-01-01' and '2019-10-27'
+        and companyid in (557)
+        group by companyid
+union
+        select sum(ApplyOutClickCount) As Clicks, companyid
+        from JobApplyOutClick jaoc join job on job.jobid = jaoc.jobid
+        join users on job.userid = users.id
+        where date between '2019-01-01' and '2019-10-27'
+        and companyid in (557)
+        group by companyid
+ */
+
+/*
+ 
+ select companyid, sum(FBD.Impressions) As CPA_Impressions,
+    sum(FBD.Clicks) As CPA_Clicks, 
+    Round(sum(FBD.Clicks)*100.0 / sum(FBD.Impressions), 2) As CPA_CTR
+    from CompanypageAdPackages CPAP
+    join
+    [Calculon.Metrics].dbo.FlightsByDay FBD on
+    fbd.flightid = CPAP.flightid
+    join users u on u.id=cpap.owneruserid
+    where companyid in (557)
+    and fbd.date between '2019-01-01' and '2019-10-27'
+    group by companyid
+    */
+  
+  
+ 
+select *
+  from companypagevisits cpv 
+  join companypageadpackages cpap on cpv.CompanyPageId=cpap.id
+  join users u on u.id=cpap.owneruserid
+  where u.companyid in (557) and date between '2019-01-01' and '2019-10-27'
+ 
+  /*
+  select sum(cpv.visitcount) As PageViewCount, cpv.companypageid
+  from companypagevisits cpv 
+  join companypageadpackages cpap on cpv.companypageid=cpap.companypageid
+  where cpv.companypageid in (11888) and date between '2019-10-01' and '2019-10-27'
+  group by cpv.companypageid
+ */
