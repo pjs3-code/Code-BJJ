@@ -1,0 +1,107 @@
+declare @Start  date = '##StartDate##'
+declare @end  date = '##EndDate##'
+declare @rep char(40)
+declare @companyid table (id int)
+SET @rep = '##Rep##'
+
+BEGIN
+
+if @rep = 'ZEKE'
+insert into @companyid values (557), (2003), (1146), (3100), (16900)  
+
+if @rep = 'PANKIT'
+insert into @companyid values (123)
+
+if @rep = 'BoryanaPriority'
+insert into @companyid values 
+(12566),(2289),(6270),(15794),(55609),(15212),(10516),(8681),(5262),(9891),(12401),(16244),(13549),(55718)
+
+select companies.name,
+clicktab.companyid, viewtab.views As Views, sum(clicktab.clicks) As Clicks, Round(sum(clicktab.clicks)*100.0/viewtab.views,1) As CTR, 
+utilizationtab.utilization,
+adtab.CPA_Impressions, adtab.CPA_Clicks, adtab.CPA_CTR, Pageviewtab.PageViews,
+CandidateSearch.Messages, CandidateSearch.Interested 
+
+from
+
+companies
+join
+
+--Job Views  
+  (select companyid, 
+        sum(case when job.state = 4 and job.datestatechanged < @start then 0 else visitcount end) As Views
+from job join users u on job.userid=u.id
+join jobvisits jv on jv.jobid=job.jobid
+where u.companyid in (select id from @companyid) and date between @start and @end
+group by companyid) Viewtab
+on companies.id=viewtab.companyid
+
+--Job Clicks
+left join   
+        (select sum(ApplyButtonClickCount) As Clicks, companyid
+        from JobApplyButtonClicks jabc join job on job.jobid = jabc.jobid
+        join users on job.userid = users.id
+        where date between @start and @end
+        and companyid in (select id from @companyid)
+        group by companyid
+union
+        select sum(ApplyOutClickCount) As Clicks, companyid
+        from JobApplyOutClick jaoc join job on job.jobid = jaoc.jobid
+        join users on job.userid = users.id
+        where date between @start and @end
+        and companyid in (select id from @companyid)
+        group by companyid) Clicktab 
+on Viewtab.companyid = clicktab.companyid
+
+full join 
+      (select u.companyid, count(case when js.isavailable = 0 then 1 else null end)*100/
+    (count(case when js.isavailable = 1 then 1 else null end) +
+    count(case when js.isavailable = 0 then 1 else null end)) As Utilization
+    from jobslot js full outer join job j on j.jobid = js.jobid
+    full outer join users u on js.userid=u.id
+    where js.orderid in (
+    select distinct orderid
+from JobSlot js join users u on u.id=js.userid
+where companyid in (select id from @companyid) and getdate() < JS.DateExpires
+group by orderid) group by u.companyid) Utilizationtab
+    on utilizationtab.companyid = viewtab.companyid
+full join 
+    (select companyid, sum(FBD.Impressions) As CPA_Impressions,
+    sum(FBD.Clicks) As CPA_Clicks, 
+    Round(sum(FBD.Clicks)*100.0 / sum(FBD.Impressions), 2) As CPA_CTR
+    from CompanypageAdPackages CPAP
+    join
+    [Calculon.Metrics].dbo.FlightsByDay FBD on
+    fbd.flightid = CPAP.flightid
+    join users u on u.id=cpap.owneruserid
+    where companyid in (select id from @companyid)
+    and fbd.date between @start and @end
+    group by companyid) AdTab
+
+on adtab.companyid=clicktab.companyid
+
+full join 
+   (select sum(cpv.visitcount) As PageViews, companyid
+  from companypagevisits cpv  
+  join companypages cp on cpv.companypageid=cp.id 
+  join users u on cp.userid=u.id 
+  where u.companyid in (select id from @companyid)
+  and date between @start and @end
+  group by companyid) Pageviewtab
+on pageviewtab.companyid = adtab.companyid
+
+full join 
+  (select u.companyid,
+count(distinct messagethreadid) As Messages,
+count(distinct(case when ResponseInterestIndicator = 4 then candidateid else null end)) As Interested 
+from introductions join users u on introductions.intromessagesenderuserid = u.id
+join companies c on c.id = u.companyid 
+where IntroMessageCreationDate
+between @start and @end and u.companyid in (select id from @companyid)
+group by u.companyid) CandidateSearch
+on Viewtab.companyid = CandidateSearch.companyid
+
+group by companies.name, clicktab.companyid, viewtab.views, utilizationtab.utilization, 
+adtab.CPA_Impressions, adtab.CPA_Clicks, adtab.CPA_CTR, Pageviewtab.PageViews,
+CandidateSearch.Messages, CandidateSearch.Interested 
+END
