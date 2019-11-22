@@ -1,0 +1,47 @@
+select job.jobid, 
+       job.title, 
+       job.tags, 
+       case when tags like '%java' then 1 else null end as java,
+       case when tags like '%c++%' then 1 else null end as c_plus,
+       case when tags like '%javascript%' then 1 else null end as javascript,
+       case when tags like '%c#%' then 1 else null end as c#,
+       case when tags like '%android%' then 1 else null end as android,
+       case when tags like '%ios%' then 1 else null end as ios,
+       case when tags like '%sql%' then 1 else null end as sql,
+       case when tags like '%python%' then 1 else null end as python,
+       case when tags like '%html%' then 1 else null end as html,
+       case when tags like '%css%' then 1 else null end as css,
+       case when tags like '%amazon-web-services%' then 1 else null end as amazonwebservices,
+       case when tags like '%linux%' then 1 else null end as linux,
+       case when tags like '%go%' then 1 else null end as go,
+       case when tags like '%qa%' then 1 else null end as qa,
+       sum(ApplyButtonClickCount) As Clicks
+        from JobApplyButtonClicks jabc join job on job.jobid = jabc.jobid
+        join users on job.userid = users.id
+        where date between '2019-01-01' and '2019-11-20'
+        and companyid in (1146)
+        group by job.jobid, job.title, job.tags
+union
+        select job.jobid, 
+        job.title, 
+        job.tags, 
+       case when tags like '%java' then 1 else null end as java,
+       case when tags like '%c++%' then 1 else null end as c_plus,
+       case when tags like '%javascript%' then 1 else null end as javascript,
+       case when tags like '%c#%' then 1 else null end as c#,
+       case when tags like '%android%' then 1 else null end as android,
+       case when tags like '%ios%' then 1 else null end as ios,
+       case when tags like '%sql%' then 1 else null end as sql,
+       case when tags like '%python%' then 1 else null end as python,
+       case when tags like '%html%' then 1 else null end as html,
+       case when tags like '%css%' then 1 else null end as css,
+       case when tags like '%amazon-web-services%' then 1 else null end as amazonwebservices,
+       case when tags like '%linux%' then 1 else null end as linux,
+       case when tags like '%go%' then 1 else null end as go,
+       case when tags like '%qa%' then 1 else null end as qa, 
+        sum(ApplyOutClickCount) As Clicks
+        from JobApplyOutClick jaoc join job on job.jobid = jaoc.jobid
+        join users on job.userid = users.id
+        where date between '2019-01-01' and '2019-11-20'
+        and companyid in (1146)
+        group by job.jobid, job.title, job.tags
