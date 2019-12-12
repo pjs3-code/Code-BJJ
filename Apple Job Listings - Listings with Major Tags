@@ -1,0 +1,68 @@
+select job.title, v.jobid, sum(v.Views) as Views, sum(c.Clicks) as Clicks, job.tags, 
+case when tags like '%java%' then 'Yes'
+when tags like '%javascript%' then 'Yes'
+when tags like '%c#%' then 'Yes'
+when tags like '%php%' then 'Yes'
+when tags like '%python%' then 'Yes'
+when tags like '%android%' then 'Yes'
+when tags like '%jquery%' then 'Yes'
+when tags like '%html%' then 'Yes'
+when tags like '%c++%' then 'Yes'
+when tags like '%ios%' then 'Yes'
+when tags like '%css%' then 'Yes'
+when tags like '%mysql%' then 'Yes'
+when tags like '%sql%' then 'Yes'
+when tags like '%asp.net%' then 'Yes'
+when tags like '%r%' then 'Yes'
+when tags like '%c%' then 'Yes'
+when tags like '%arrays%' then 'Yes'
+when tags like '%ruby-on-rails%' then 'Yes'
+when tags like '%node.js%' then 'Yes'
+when tags like '%.net%' then 'Yes'
+when tags like '%objective-c%' then 'Yes'
+when tags like '%json%' then 'Yes'
+when tags like '%sql-server%' then 'Yes'
+when tags like '%angularjs%' then 'Yes'
+when tags like '%swift%' then 'Yes'
+when tags like '%iphone%' then 'Yes'
+when tags like '%regex%' then 'Yes'
+when tags like '%django%' then 'Yes'
+when tags like '%excel%' then 'Yes'
+when tags like '%ruby%' then 'Yes'
+
+else null end as Has_Major_Tag 
+
+from 
+
+job
+
+join
+
+(select job.jobid, 
+        sum(case when job.state = 4 and job.datestatechanged < '2019-11-01' then 0 else visitcount end) As Views
+from job join users u on job.userid=u.id
+join jobvisits jv on jv.jobid=job.jobid
+where u.companyid in (56364) and date between '2019-11-01' and '2019-11-30'
+group by job.jobid) V
+on job.jobid = v.jobid
+left join
+
+(select sum(ApplyButtonClickCount) As Clicks, job.jobid
+        from JobApplyButtonClicks jabc join job on job.jobid = jabc.jobid
+        join users on job.userid = users.id
+        where date between '2019-11-01' and '2019-11-30'
+        and companyid in (56364)
+        group by job.jobid
+union
+        select sum(ApplyOutClickCount) As Clicks, job.jobid
+        from JobApplyOutClick jaoc join job on job.jobid = jaoc.jobid
+        join users on job.userid = users.id
+        where date between '2019-11-01' and '2019-11-30'
+        and companyid in (56364)
+        group by job.jobid) C
+        on V.jobid = C.jobid 
+        group by v.jobid, job.tags, job.title
+        
+        
+        
+     
