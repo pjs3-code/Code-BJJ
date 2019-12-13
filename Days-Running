@@ -1,0 +1,12 @@
+--@start DATE = '##StartDate##'
+--@end DATE = '##EndDate##'
+
+select job.title, sum(datediff(dd,
+case when startdate < '2019-11-01' then '2019-11-01' else startdate end,
+case when enddate > '2019-12-01' then '2019-12-01' else enddate end)) As DaysRunning
+from jobrunningperiods 
+join job on job.jobid = jobrunningperiods.jobid
+join users on users.id = job.userid
+join companies on companies.id = users.companyid
+and EndDate >='2019-11-01' and StartDate <= '2019-11-30' and companyid = 56364
+group by job.title
