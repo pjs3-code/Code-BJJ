@@ -4,10 +4,11 @@
 <style>
 * {box-sizing: border-box;}
 ul {list-style-type: none;}
-body {font-family: Verdana, sans-serif;}
+body {font-family: Verdana, sans-serif; background-color: #ddd;}
 
 .Title {
 text-align: center;
+color: #666;
 }
 
 .month {
@@ -16,6 +17,11 @@ text-align: center;
   background-color: #FF9900;
   color: white;
   text-align: center;
+}
+
+.monthindex {
+color: #666;
+text-align: left;
 }
 
 .month ul {
@@ -84,19 +90,30 @@ text-align: center;
 <body>
 
 <h1 class="Title"> Stack Word Of The Day Calendar</h1>
-<a href="#January">January</a>
-<a href="#February">February</a>
-<a href="#March">March</a>
-<a href="#April">April</a>
-<a href="#May">May</a>
-<a href="#June">June</a>
-<a href="#July">July</a>
-<a href="#August">August</a>
-<a href="#September">September</a>
-<a href="#October">October</a>
-<a href="#November">November</a>
-<a href="#December">December</a>
-
+<a href="#January" class="monthindex">January</a>
+<div></div>
+<a href="#February" class="monthindex">February</a>
+<div></div>
+<a href="#March" class="monthindex">March</a>
+<div></div>
+<a href="#April" class="monthindex">April</a>
+<div></div>
+<a href="#May" class="monthindex">May</a>
+<div></div>
+<a href="#June" class="monthindex">June</a>
+<div></div>
+<a href="#July" class="monthindex">July</a>
+<div></div>
+<a href="#August" class="monthindex">August</a>
+<div></div>
+<a href="#September" class="monthindex">September</a>
+<div></div>
+<a href="#October" class="monthindex">October</a>
+<div></div>
+<a href="#November" class="monthindex">November</a>
+<div></div>
+<a href="#December" class="monthindex">December</a>
+<div color="black">  </div>
 <div class="month">      
       January<br>
       <span style="font-size:18px">2020</span>
