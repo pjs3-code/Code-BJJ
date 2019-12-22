@@ -103,16 +103,19 @@ text-align: center;
 </div>
 
 <ul class="weekdays">
+  <li>Su</li>
   <li>Mo</li>
   <li>Tu</li>
   <li>We</li>
   <li>Th</li>
   <li>Fr</li>
   <li>Sa</li>
-  <li>Su</li>
 </ul>
 
 <ul class="days">  
+  <li></li>
+  <li></li>
+  <li></li>
   <li><span class="active">1</span></li>
   <li>2</li>
   <li>3</li>
@@ -152,16 +155,23 @@ text-align: center;
 </div>
 
 <ul class="weekdays">
+  <li>Su</li>
   <li>Mo</li>
   <li>Tu</li>
   <li>We</li>
   <li>Th</li>
   <li>Fr</li>
   <li>Sa</li>
-  <li>Su</li>
+  
 </ul>
 
 <ul class="days">  
+  <li></li>
+  <li></li>
+  <li></li>
+  <li></li>
+  <li></li>
+  <li></li>
   <li>1</li>
   <li>2</li>
   <li>3</li>
@@ -191,8 +201,6 @@ text-align: center;
   <li>27</li>
   <li>28</li>
   <li>29</li>
-  <li>30</li>
-  <li>31</li>
 </ul>
 
 
@@ -202,13 +210,14 @@ text-align: center;
 </div>
 
 <ul class="weekdays">
+  <li>Su</li>
   <li>Mo</li>
   <li>Tu</li>
   <li>We</li>
   <li>Th</li>
   <li>Fr</li>
   <li>Sa</li>
-  <li>Su</li>
+  
 </ul>
 
 <ul class="days">  
@@ -252,16 +261,20 @@ text-align: center;
 </div>
 
 <ul class="weekdays">
+  <li>Su</li>
   <li>Mo</li>
   <li>Tu</li>
   <li>We</li>
   <li>Th</li>
   <li>Fr</li>
   <li>Sa</li>
-  <li>Su</li>
+  
 </ul>
 
 <ul class="days">  
+  <li></li>
+  <li></li>
+  <li></li>
   <li>1</li>
   <li>2</li>
   <li>3</li>
@@ -292,7 +305,6 @@ text-align: center;
   <li>28</li>
   <li>29</li>
   <li>30</li>
-  <li>31</li>
 </ul>
 
 <div class="month" id="May">      
@@ -301,16 +313,21 @@ text-align: center;
 </div>
 
 <ul class="weekdays">
-  <li>Mo</li>
+ <li>Su</li>
+ <li>Mo</li>
   <li>Tu</li>
   <li>We</li>
   <li>Th</li>
   <li>Fr</li>
   <li>Sa</li>
-  <li>Su</li>
 </ul>
 
 <ul class="days">  
+  <li></li>
+  <li></li>
+  <li></li>
+  <li></li>
+  <li></li>
   <li>1</li>
   <li>2</li>
   <li>3</li>
@@ -350,16 +367,18 @@ text-align: center;
 </div>
 
 <ul class="weekdays">
+  <li>Su</li>
   <li>Mo</li>
   <li>Tu</li>
   <li>We</li>
   <li>Th</li>
   <li>Fr</li>
   <li>Sa</li>
-  <li>Su</li>
+  
 </ul>
 
 <ul class="days">  
+  <li></li>
   <li>1</li>
   <li>2</li>
   <li>3</li>
@@ -390,7 +409,6 @@ text-align: center;
   <li>28</li>
   <li>29</li>
   <li>30</li>
-  <li>31</li>
 </ul>
 
 <div class="month" id="July">      
@@ -399,16 +417,20 @@ text-align: center;
 </div>
 
 <ul class="weekdays">
+  <li>Su</li>
   <li>Mo</li>
   <li>Tu</li>
   <li>We</li>
   <li>Th</li>
   <li>Fr</li>
   <li>Sa</li>
-  <li>Su</li>
+  
 </ul>
 
 <ul class="days">  
+  <li></li>
+  <li></li>
+  <li></li>
   <li>1</li>
   <li>2</li>
   <li>3</li>
@@ -448,16 +470,22 @@ text-align: center;
 </div>
 
 <ul class="weekdays">
+  <li>Su</li>
   <li>Mo</li>
   <li>Tu</li>
   <li>We</li>
   <li>Th</li>
   <li>Fr</li>
   <li>Sa</li>
-  <li>Su</li>
 </ul>
 
 <ul class="days">  
+  <li></li>
+  <li></li>
+  <li></li>
+  <li></li>
+  <li></li>
+  <li></li>
   <li>1</li>
   <li>2</li>
   <li>3</li>
@@ -497,16 +525,18 @@ text-align: center;
 </div>
 
 <ul class="weekdays">
+  <li>Su</li>
   <li>Mo</li>
   <li>Tu</li>
   <li>We</li>
   <li>Th</li>
   <li>Fr</li>
   <li>Sa</li>
-  <li>Su</li>
 </ul>
 
 <ul class="days">  
+  <li></li>
+  <li></li>
   <li>1</li>
   <li>2</li>
   <li>3</li>
@@ -537,7 +567,6 @@ text-align: center;
   <li>28</li>
   <li>29</li>
   <li>30</li>
-  <li>31</li>
 </ul>
 
 <div class="month" id="October">      
@@ -546,16 +575,21 @@ text-align: center;
 </div>
 
 <ul class="weekdays">
+  <li>Su</li>
   <li>Mo</li>
   <li>Tu</li>
   <li>We</li>
   <li>Th</li>
   <li>Fr</li>
   <li>Sa</li>
-  <li>Su</li>
+  
 </ul>
 
 <ul class="days">  
+  <li></li>
+  <li></li>
+  <li></li>
+  <li></li>
   <li>1</li>
   <li>2</li>
   <li>3</li>
@@ -595,13 +629,14 @@ text-align: center;
 </div>
 
 <ul class="weekdays">
+  <li>Su</li>
   <li>Mo</li>
   <li>Tu</li>
   <li>We</li>
   <li>Th</li>
   <li>Fr</li>
   <li>Sa</li>
-  <li>Su</li>
+  
 </ul>
 
 <ul class="days">  
@@ -635,7 +670,6 @@ text-align: center;
   <li>28</li>
   <li>29</li>
   <li>30</li>
-  <li>31</li>
 </ul>
 
 <div class="month" id="December">      
@@ -644,16 +678,19 @@ text-align: center;
 </div>
 
 <ul class="weekdays">
+  <li>Su</li>
   <li>Mo</li>
   <li>Tu</li>
   <li>We</li>
   <li>Th</li>
   <li>Fr</li>
   <li>Sa</li>
-  <li>Su</li>
+  
 </ul>
 
 <ul class="days">  
+  <li></li>
+  <li></li>
   <li>1</li>
   <li>2</li>
   <li>3</li>
