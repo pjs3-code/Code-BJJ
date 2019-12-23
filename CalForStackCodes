@@ -20,14 +20,17 @@ color: #666;
 }
 
 .monthindex {
-color: #666;
+color: #FF9900;
 text-align: left;
+
 }
 
-.month ul {
-  color: white;
-  margin: 0;
-  padding: 0;
+.monthindexborder {
+border-color: #ddd;
+border-width: 10px;
+border-style: solid;
+
+
 }
 
 .month ul li {
@@ -35,7 +38,7 @@ text-align: left;
   font-size: 20px;
   text-transform: uppercase;
   letter-spacing: 3px;
-} 
+}
 
 .weekdays {
   margin: 0;
@@ -56,6 +59,8 @@ text-align: left;
   margin: 0;
 }
 
+
+
 .days li {
   list-style-type: none;
   display: inline-block;
@@ -66,9 +71,9 @@ text-align: left;
   color: #777;
 }
 
-.days li .active {
+.days li:hover {
   padding: 5px;
-  background: #1abc9c;
+  background: #1abc9e;
   color: white !important
 }
 
@@ -90,30 +95,21 @@ text-align: left;
 <body>
 
 <h1 class="Title"> Stack Word Of The Day Calendar</h1>
-<a href="#January" class="monthindex">January</a>
-<div></div>
-<a href="#February" class="monthindex">February</a>
-<div></div>
-<a href="#March" class="monthindex">March</a>
-<div></div>
-<a href="#April" class="monthindex">April</a>
-<div></div>
-<a href="#May" class="monthindex">May</a>
-<div></div>
-<a href="#June" class="monthindex">June</a>
-<div></div>
-<a href="#July" class="monthindex">July</a>
-<div></div>
-<a href="#August" class="monthindex">August</a>
-<div></div>
-<a href="#September" class="monthindex">September</a>
-<div></div>
-<a href="#October" class="monthindex">October</a>
-<div></div>
-<a href="#November" class="monthindex">November</a>
-<div></div>
-<a href="#December" class="monthindex">December</a>
-<div color="black">  </div>
+
+<ul>
+<li><a href="#January" class="monthindex">January</a></li>
+<li><a href="#February" class="monthindex">February</a></li>
+<li><a href="#March" class="monthindex">March</a></li>
+<li><a href="#April" class="monthindex">April</a></li>
+<li><a href="#May" class="monthindex">May</a></li>
+<li><a href="#June" class="monthindex">June</a></li>
+<li><a href="#July" class="monthindex">July</a></li>
+<li><a href="#August" class="monthindex">August</a></li>
+<li><a href="#September" class="monthindex">September</a></li>
+<li><a href="#October" class="monthindex">October</a></li>
+<li><a href="#November" class="monthindex">November</a></li>
+<li><a href="#December" class="monthindex">December</a></li>
+</ul>
 <div class="month">      
       January<br>
       <span style="font-size:18px">2020</span>
@@ -133,7 +129,7 @@ text-align: left;
   <li></li>
   <li></li>
   <li></li>
-  <li><span class="active">1</span></li>
+  <li><a href="https://stackoverflow.com/questions/tagged/javascript">1</a></li>
   <li>2</li>
   <li>3</li>
   <li>4</li>
