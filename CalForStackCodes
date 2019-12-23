@@ -2,6 +2,7 @@
 <html>
 <head>
 <style>
+
 * {box-sizing: border-box;}
 ul {list-style-type: none;}
 body {font-family: Verdana, sans-serif; background-color: #ddd;}
@@ -22,7 +23,6 @@ color: #666;
 .monthindex {
 color: #FF9900;
 text-align: left;
-
 }
 
 .monthindexborder {
@@ -59,8 +59,6 @@ border-style: solid;
   margin: 0;
 }
 
-
-
 .days li {
   list-style-type: none;
   display: inline-block;
@@ -94,7 +92,50 @@ border-style: solid;
 </head>
 <body>
 
-<h1 class="Title"> Stack Word Of The Day Calendar</h1>
+<h1> Programming Word Of The Day</h1>
+<div>
+		<h3> Tech - Fun - New</h3>
+		<h3>Bord at an hour meeting that should have taken 10 minutes</h3>
+		<h4>Come to the Programming Word of the day and it may look like you are doing somthing</h4>
+</div>
+<!--Do I need to use a body within the H tags? -->
+
+<button>
+<h4> 
+		Calendar
+</h4>
+</button>  
+
+<button>
+<h4> 
+		About
+	</h4>
+</button>
+
+<button>
+<h4> 
+		Contact
+	</h4>
+</button>
+
+<button>
+<h4> 
+		Questions
+	</h4>
+</button>
+
+<button>
+<h4> 
+		Stack Overflow
+	</h4>
+</button>
+
+<div>
+<a href= "https://stackoverflow.com/search?q=word+of+the+day+&mixed=0">
+	SO Sample :)</a>
+</div>
+
+<h2 class="Title"> Stack Codes Word Of The Day Calendar</h2>
 
 <ul>
 <li><a href="#January" class="monthindex">January</a></li>
