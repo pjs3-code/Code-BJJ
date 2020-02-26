@@ -2,10 +2,11 @@ select orderitemtotal, name, orders.id, orders.state, contracts.stateid
 from orders join contracts on orders.contractid = contracts.id
 join clients on contracts.clientid = clients.id
 where ScheduledTerminusDate between '2020-02-01' and '2020-02-29' and
-orders.id in (select orderitems.orderid
+orders.id in (select distinct orderitems.orderid
 from orderitems join skus on skus.id = orderitems.skuid
-join inventoryitems on inventoryitems.orderid = orders.id 
-where skutypeid in (2, 3, 8, 9, 10, 15, 16)) 
+join inventoryitems on inventoryitems.orderid = orderitems.orderid 
+where inventoryitems.id is not null and skutypeid in (2, 3, 8, 9, 10, 15, 16)) 
+order by orderitemtotal desc
 
 --select *
 --from contractstates
